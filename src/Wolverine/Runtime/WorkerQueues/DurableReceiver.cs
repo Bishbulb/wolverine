@@ -64,6 +64,12 @@ public class DurableReceiver : ILocalQueue, IChannelCallback, ISupportNativeSche
             {
                 envelope.ContentType ??= EnvelopeConstants.JsonContentType;
 
+                // [PRENTICE-DBG] Log every durable-queue dispatch so we can correlate
+                // durability-agent enqueues with handler invocations.
+                _logger.LogInformation(
+                    "[PRENTICE-DBG] DurableReceiver.execute uri={Uri} envelopeId={EnvId} messageType={Type} attempts={Attempts} thread={Thread}",
+                    Uri, envelope.Id, envelope.MessageType, envelope.Attempts, Environment.CurrentManagedThreadId);
+
                 await pipeline.InvokeAsync(envelope, this).ConfigureAwait(false);
             }
             catch (Exception? e)

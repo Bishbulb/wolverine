@@ -72,6 +72,12 @@ internal class BufferedReceiver : ILocalQueue, IChannelCallback, ISupportNativeS
                 envelope.ContentType = EnvelopeConstants.JsonContentType;
             }
 
+            // [PRENTICE-DBG] Log every local-queue dispatch so we can correlate
+            // durability-agent enqueues with handler invocations.
+            _logger.LogInformation(
+                "[PRENTICE-DBG] BufferedReceiver.execute uri={Uri} envelopeId={EnvId} messageType={Type} thread={Thread}",
+                Uri, envelope.Id, envelope.MessageType, Environment.CurrentManagedThreadId);
+
             await Pipeline!.InvokeAsync(envelope, this).ConfigureAwait(false);
         }
         catch (Exception? e)
